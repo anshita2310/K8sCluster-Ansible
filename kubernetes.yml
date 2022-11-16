@@ -12,7 +12,7 @@
           - nc
           - redhat-lsb-core
           
-       docker-packages:
+      docker-packages:
           - lvm2
           - yum-utils
           - device-mapper-persistent-data
@@ -28,25 +28,25 @@
           state: stopped
           enabled: false
           
-       - name: Installing Docker Prerequisite packages
-       yum:
+      - name: Installing Docker Prerequisite packages
+        yum:
          name: "{{ docker-packages }}"
          state: latest
 
 
-     - name: Configuring docker-ce repo
-       get_url:
+      - name: Configuring docker-ce repo
+        get_url:
          url: https://download.docker.com/linux/centos/docker-ce.repo
          dest: /etc/yum.repos.d/docker-ce.repo
          mode: 0644
 
-     - name: Installing Docker latest version
-       yum:
+      - name: Installing Docker latest version
+        yum:
          name: docker-ce
          state: present
 
-     - name: Starting and Enabling Docker service
-       service:
+      - name: Starting and Enabling Docker service
+        service:
          name: docker
          state: started
          enabled: yes
@@ -92,14 +92,14 @@
           state: present
           update_cache: true
 
-     - name: install kubeadm
-       yum:
+      - name: install kubeadm
+        yum:
          name: kubeadm-1.22.12-0
          state: present
          update_cache: true
 
-     - name: start kubelet
-       service:
+      - name: start kubelet
+        service:
          name: kubelet
          enabled: yes
          state: started
