@@ -1,0 +1,114 @@
+---
+  - hosts: all
+    become: yes
+    vars:
+      packages:
+          - vim
+          - net-tools
+          - wget
+          - telnet
+          - zip
+          - lsof
+          - nc
+          - redhat-lsb-core
+          
+       docker-packages:
+          - lvm2
+          - yum-utils
+          - device-mapper-persistent-data
+
+    tasks:
+      - name: Install a list of packages
+        action: yum name= "{{packages}}" state=installed
+
+
+      - name: Stop and Disable Firewalld
+        service:
+          name: firewalld
+          state: stopped
+          enabled: false
+          
+       - name: Installing Docker Prerequisite packages
+       yum:
+         name: "{{ docker-packages }}"
+         state: latest
+
+
+     - name: Configuring docker-ce repo
+       get_url:
+         url: https://download.docker.com/linux/centos/docker-ce.repo
+         dest: /etc/yum.repos.d/docker-ce.repo
+         mode: 0644
+
+     - name: Installing Docker latest version
+       yum:
+         name: docker-ce
+         state: present
+
+     - name: Starting and Enabling Docker service
+       service:
+         name: docker
+         state: started
+         enabled: yes
+         
+      - name: Helm Installation
+        shell: "{{ item }}"
+        with_items:
+        - wget https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz
+        - tar -zxvf helm-v3.10.1-linux-amd64.tar.gz
+        - mv linux-amd64/helm /usr/local/bin/helm
+        - /usr/local/bin/helm version
+        
+      - name: disable SELinux
+        command: setenforce 0
+
+      - name: disable SELinux on reboot
+        selinux:
+          state: disabled
+
+      - name: Disabling Swap on all nodes
+        shell: swapoff -a
+
+
+      - name: Commenting Swap entries in /etc/fstab
+        replace:
+          path: /etc/fstab
+          regexp: '(.*swap*)'
+          replace: '#\1'
+          
+      - name: add Kubernetes' YUM repository
+        yum_repository:
+         name: Kubernetes
+         description: Kubernetes YUM repository
+         baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+         gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+         gpgcheck: yes
+         enabled: yes
+         repo_gpgcheck: no
+
+      - name: install kubelet
+        yum:
+          name: kubelet-1.22.12-0
+          state: present
+          update_cache: true
+
+     - name: install kubeadm
+       yum:
+         name: kubeadm-1.22.12-0
+         state: present
+         update_cache: true
+
+     - name: start kubelet
+       service:
+         name: kubelet
+         enabled: yes
+         state: started
+       
+  - hosts: masters
+    become: yes
+    tasks:
+     - name: install kubectl
+       yum:
+         name: kubectl-1.22.12-0
+         state: present
+
