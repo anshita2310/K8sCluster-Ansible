@@ -1,0 +1,15 @@
+[masters]
+master1 ansible_host=<Private IP of Master1> ansible_user=<username>
+master2 ansible_host=<Private IP of Master2> ansible_user=<username>
+
+[workers]
+worker1 ansible_host=<Private IP of Worker1> ansible_user=<username>
+
+
+#example:
+#[masters]
+#master1 ansible_host=172.31.25.225 ansible_user=ansible
+#master2 ansible_host=172.31.25.54 ansible_user=ansible
+
+#[workers]
+#worker1 ansible_host=172.31.18.106 ansible_user=ansible
