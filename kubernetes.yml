@@ -11,8 +11,6 @@
           - lsof
           - nc
           - redhat-lsb-core
-          
-      docker-packages:
           - lvm2
           - yum-utils
           - device-mapper-persistent-data
@@ -30,7 +28,7 @@
           
       - name: Installing Docker Prerequisite packages
         yum:
-         name: "{{ docker-packages }}"
+         name: "{{ packages }}"
          state: latest
 
 
