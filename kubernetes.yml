@@ -1,24 +1,14 @@
 ---
   - hosts: all
     become: yes
-    vars:
-      packages:
-          - vim
-          - net-tools
-          - wget
-          - telnet
-          - zip
-          - lsof
-          - nc
-          - redhat-lsb-core
-          - lvm2
-          - yum-utils
-          - device-mapper-persistent-data
 
     tasks:
       - name: Install a list of packages
-        action: yum name= "{{packages}}" state=installed
-
+        shell: "{{ item }}"
+        with_items:
+        - yum update
+        - yum install -y yum-utils git wget net-tools vim zip lsof nc
+        - yum install redhat-lsb-core
 
       - name: Stop and Disable Firewalld
         service:
@@ -27,9 +17,9 @@
           enabled: false
           
       - name: Installing Docker Prerequisite packages
-        yum:
-         name: "{{ packages }}"
-         state: latest
+        shell: "{{ item }}"
+        with_items:
+        - yum install -y yum-utils device-mapper-persistent-data lvm2
 
 
       - name: Configuring docker-ce repo
